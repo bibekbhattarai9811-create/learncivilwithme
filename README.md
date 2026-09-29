@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LearnCivilWithMe
 
-## Getting Started
+Live site: https://bibekbhattarai9811-create.github.io/learncivilwithme/
 
-First, run the development server:
+A self-study website for becoming a professional civil engineer (US path: self-study → FE → PE).
+
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3300
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What's inside
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Page | What it does |
+|---|---|
+| Dashboard | Overall progress, next tasks, weekly hours, streak, quiz accuracy |
+| Roadmap | 9 phases, 36 modules, 94 checkable tasks, key concepts + free resources per module |
+| Practice (FE) | 145 FE-style questions in 12 topics with worked solutions, per-topic accuracy, review missed, FE-pace timer |
+| Calculators | Beam (V/M/deflection diagrams), section properties, Manning, concrete estimator, engineering economics, unit converter |
+| Study Log | Log sessions, weekly goal, 16-week heatmap, hours by subject |
+| License Path | Honest US licensure routes and pre-license jobs |
+| Backup & Settings | Export/import/reset progress (JSON) |
 
-## Learn More
+All progress is stored in the browser's localStorage (`civilpath:v1`). Use Backup to move it between computers.
 
-To learn more about Next.js, take a look at the following resources:
+## Editing content
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Roadmap: `src/lib/roadmap.ts` (keep task `id`s stable, since progress is stored against them)
+- Questions: `src/lib/questions.ts`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
+```bash
+npm run deploy
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Builds the static site and pushes it to the `gh-pages` branch, which GitHub Pages serves at
+https://bibekbhattarai9811-create.github.io/learncivilwithme/

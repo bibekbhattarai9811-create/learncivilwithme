@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: #0a1020;
+  --color-panel: #111a2e;
+  --color-panel-2: #16213a;
+  --color-line: #22304f;
+  --color-ink: #e6ecf7;
+  --color-muted: #8b9bb8;
+  --color-accent: #f5a524;
+  --color-accent-2: #38bdf8;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  /* faint blueprint grid */
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-panel/90 backdrop-blur-sm;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-40;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-black hover:bg-amber-400;
+}
+@utility btn-ghost {
+  @apply btn border border-line text-ink hover:bg-panel-2;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink outline-none focus:border-accent;
+}
+
+@utility label {
+  @apply mb-1 block text-xs font-medium uppercase tracking-wide text-muted;
+}
+
+::selection {
+  background: rgba(245, 165, 36, 0.35);
 }
