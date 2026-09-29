@@ -1,6 +1,6 @@
 # LearnCivilWithMe
 
-Live site: https://bibekbhattarai9811-create.github.io/learncivilwithme/
+Live site: **https://learncivilwithme.vercel.app** (mirror: https://bibekbhattarai9811-create.github.io/learncivilwithme/)
 
 A self-study website for becoming a professional civil engineer (US path: self-study → FE → PE).
 
@@ -34,9 +34,5 @@ All progress is stored in the browser's localStorage (`civilpath:v1`). Use Backu
 
 ## Deploy
 
-```bash
-npm run deploy
-```
-
-Builds the static site and pushes it to the `gh-pages` branch, which GitHub Pages serves at
-https://bibekbhattarai9811-create.github.io/learncivilwithme/
+- **Vercel (main site):** automatic. Every push to `master` on GitHub redeploys https://learncivilwithme.vercel.app
+- **GitHub Pages (mirror):** run `npm run deploy` (in Git Bash on Windows: `MSYS_NO_PATHCONV=1 npm run deploy`)
