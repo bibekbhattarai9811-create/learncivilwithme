@@ -50,12 +50,51 @@ function save() {
   }
 }
 
+// called after every LOCAL change (the cloud sync uses this to push)
+const changeHooks = new Set<(s: AppState) => void>();
+export function onLocalChange(fn: (s: AppState) => void) {
+  changeHooks.add(fn);
+  return () => changeHooks.delete(fn);
+}
+
 export function update(fn: (s: AppState) => AppState) {
   load();
   state = fn(state);
   save();
   listeners.forEach((l) => l());
+  changeHooks.forEach((h) => h(state));
 }
+
+/** replace state with data from the server (does not trigger a push back) */
+export function setFromRemote(s: Partial<AppState>) {
+  load();
+  state = { ...EMPTY, ...s };
+  save();
+  listeners.forEach((l) => l());
+}
+
+export function getState() {
+  load();
+  return state;
+}
+
+/** combine guest progress with account progress when logging in */
+export function mergeStates(a: AppState, b: AppState): AppState {
+  const quiz: QuizStats = { ...a.quiz };
+  for (const [cat, st] of Object.entries(b.quiz ?? {})) {
+    if (!quiz[cat] || st.seen > quiz[cat].seen) quiz[cat] = st;
+  }
+  const log = new Map([...(a.log ?? []), ...(b.log ?? [])].map((e) => [e.id, e]));
+  return {
+    done: [...new Set([...(a.done ?? []), ...(b.done ?? [])])],
+    log: [...log.values()],
+    weeklyGoal: b.weeklyGoal ?? a.weeklyGoal,
+    quiz,
+    missed: [...new Set([...(a.missed ?? []), ...(b.missed ?? [])])],
+  };
+}
+
+export const EMPTY_STATE = EMPTY;
 
 function subscribe(l: () => void) {
   listeners.add(l);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import AccountBoot from "@/components/AccountBoot";
 import Nav from "@/components/Nav";
 import "./globals.css";
 
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <AccountBoot />
         <div className="flex min-h-screen flex-col md:flex-row">
           <Nav />
           <main className="min-w-0 flex-1 px-4 py-6 md:px-10 md:py-10">

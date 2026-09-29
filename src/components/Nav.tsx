@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { logOut, useAccount } from "@/lib/account";
 import { ALL_TASKS } from "@/lib/roadmap";
 import { useAppState, useHydrated } from "@/lib/store";
 
@@ -24,7 +25,8 @@ export default function Nav() {
   const hydrated = useHydrated();
   const pct = Math.round((done.filter((d) => ALL_TASKS.some((t) => t.id === d)).length / ALL_TASKS.length) * 100);
 
-  const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+  // exact segment match, so "/log" doesn't light up on "/login"
+  const isActive = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(href + "/"));
 
   return (
     <aside className="border-line bg-panel/95 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:border-r">
@@ -72,8 +74,62 @@ export default function Nav() {
             <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${hydrated ? pct : 0}%` }} />
           </div>
         </div>
+
+        <AccountBox onNavigate={() => setOpen(false)} />
       </nav>
     </aside>
+  );
+}
+
+const SYNC_TEXT = {
+  idle: ["", ""],
+  saving: ["Saving…", "text-muted"],
+  saved: ["Synced to your account ✓", "text-emerald-300"],
+  offline: ["Offline — saved on this device", "text-amber-300"],
+} as const;
+
+function AccountBox({ onNavigate }: { onNavigate: () => void }) {
+  const acct = useAccount();
+  const [busy, setBusy] = useState(false);
+
+  if (acct.status === "loading") return <div className="mx-3 mt-3 h-[58px]" />;
+
+  if (acct.status === "guest") {
+    return (
+      <div className="mx-3 mt-3 rounded-lg border border-line bg-bg/60 p-3">
+        <p className="text-xs text-muted">Progress is saved on this device only.</p>
+        <Link href="/login" onClick={onNavigate} className="btn-primary mt-2 w-full py-1.5">
+          Log in / Sign up
+        </Link>
+      </div>
+    );
+  }
+
+  const [text, cls] = SYNC_TEXT[acct.sync];
+  return (
+    <div className="mx-3 mt-3 rounded-lg border border-line bg-bg/60 p-3">
+      <div className="flex items-center gap-2">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+          {acct.user!.name.slice(0, 1).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{acct.user!.name}</p>
+          <p className="truncate text-[11px] text-muted">{acct.user!.email}</p>
+        </div>
+      </div>
+      {text && <p className={`mt-2 text-[11px] ${cls}`}>{text}</p>}
+      <button
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          await logOut();
+          setBusy(false);
+        }}
+        className="btn-ghost mt-2 w-full py-1.5 text-xs"
+      >
+        {busy ? "Logging out…" : "Log out"}
+      </button>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 # LearnCivilWithMe
 
-Live site: **https://learncivilwithme.vercel.app** (mirror: https://bibekbhattarai9811-create.github.io/learncivilwithme/)
+Live site: **https://learncivilwithme.vercel.app**
 
 A self-study website for becoming a professional civil engineer (US path: self-study → FE → PE).
 
@@ -24,8 +24,16 @@ Open http://localhost:3300
 | Study Log | Log sessions, weekly goal, 16-week heatmap, hours by subject |
 | License Path | Honest US licensure routes and pre-license jobs |
 | Backup & Settings | Export/import/reset progress (JSON) |
+| Log in / Sign up | Optional free account; progress syncs to the cloud across devices |
 
-All progress is stored in the browser's localStorage (`civilpath:v1`). Use Backup to move it between computers.
+Guests: progress is stored in the browser's localStorage (`civilpath:v1`).
+Logged-in users: the same data also syncs to Neon Postgres via `/api/progress` (merged with guest progress on first login).
+
+## Accounts (database)
+
+- Neon Postgres, database `learncivilwithme`. Connection string in `DATABASE_URL` (`.env.local` locally, Vercel env vars in production). Never commit it.
+- Create/update tables: `npm run db:setup`
+- Passwords are bcrypt-hashed; sessions are random tokens in an httpOnly cookie (only their SHA-256 is stored); failed logins are throttled (8 per email per 15 min).
 
 ## Editing content
 
@@ -34,5 +42,4 @@ All progress is stored in the browser's localStorage (`civilpath:v1`). Use Backu
 
 ## Deploy
 
-- **Vercel (main site):** automatic. Every push to `master` on GitHub redeploys https://learncivilwithme.vercel.app
-- **GitHub Pages (mirror):** run `npm run deploy` (in Git Bash on Windows: `MSYS_NO_PATHCONV=1 npm run deploy`)
+Automatic: every push to `master` on GitHub redeploys https://learncivilwithme.vercel.app
