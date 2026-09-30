@@ -33,6 +33,10 @@ Logged-in users: the same data also syncs to Neon Postgres via `/api/progress` (
 
 - Neon Postgres, database `learncivilwithme`. Connection string in `DATABASE_URL` (`.env.local` locally, Vercel env vars in production). Never commit it.
 - Create/update tables: `npm run db:setup`
+- **Login first:** visitors see /login before anything else; "Continue without an account" skips it for that browser session.
+- **Forgot password:** one-time emailed link (1 hour, single use; resetting signs out other devices). Emails go through [Resend](https://resend.com):
+  add `RESEND_API_KEY` (and optionally `EMAIL_FROM`) to Vercel env vars. Until then the live site says email reset isn't switched on; locally the link is printed in the server log.
+  With Resend's free test sender (`onboarding@resend.dev`), mail is only delivered to your own Resend account address; verify a domain to email everyone.
 - Passwords are bcrypt-hashed; sessions are random tokens in an httpOnly cookie (only their SHA-256 is stored); failed logins are throttled (8 per email per 15 min).
 
 ## Editing content

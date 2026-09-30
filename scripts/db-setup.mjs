@@ -31,6 +31,17 @@ await sql`
     updated_at timestamptz not null default now()
   )`;
 
+// one-time password reset links (only the SHA-256 of the token is stored)
+await sql`
+  create table if not exists password_resets (
+    token_hash text primary key,
+    user_id    text not null references users(id) on delete cascade,
+    expires_at timestamptz not null,
+    used_at    timestamptz,
+    created_at timestamptz not null default now()
+  )`;
+await sql`create index if not exists password_resets_user_idx on password_resets(user_id, created_at)`;
+
 // failed-login throttle
 await sql`
   create table if not exists login_attempts (

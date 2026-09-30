@@ -113,7 +113,53 @@ export async function logIn(email: string, password: string) {
   await pull(true);
 }
 
+/** Always resolves the same way whether or not the email has an account. */
+export async function requestPasswordReset(email: string) {
+  await api("/api/auth/forgot", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export async function resetPassword(token: string, password: string) {
+  const { user } = await api<{ user: User }>("/api/auth/reset", { method: "POST", body: JSON.stringify({ token, password }) });
+  set({ status: "user", user });
+  await pull(true);
+}
+
+// ── "continue without an account" (asked again each new browser session) ──
+const GUEST_KEY = "lcwm:guest";
+const guestListeners = new Set<() => void>();
+function readGuest() {
+  try {
+    return sessionStorage.getItem(GUEST_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+export function setGuestChoice(on: boolean) {
+  try {
+    if (on) sessionStorage.setItem(GUEST_KEY, "1");
+    else sessionStorage.removeItem(GUEST_KEY);
+  } catch {
+    /* storage blocked: the choice just won't persist */
+  }
+  guestListeners.forEach((l) => l());
+}
+export function useGuestChoice(): boolean {
+  return useSyncExternalStore(
+    (l) => (guestListeners.add(l), () => guestListeners.delete(l)),
+    readGuest,
+    () => false,
+  );
+}
+
+/** where to go after logging in: the ?next= page if it's a safe local path */
+export function nextPath() {
+  if (typeof window === "undefined") return "/";
+  const n = new URLSearchParams(window.location.search).get("next");
+  return n && n.startsWith("/") && !n.startsWith("//") ? n : "/";
+}
+
 export async function logOut() {
+  setGuestChoice(false);
   if (pending) await push(getState()); // don't lose the last change
   await api("/api/auth/logout", { method: "POST", body: "{}" }).catch(() => {});
   clearTimeout(timer);

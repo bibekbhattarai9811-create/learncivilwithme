@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { logIn, signUp, useAccount } from "@/lib/account";
+import { logIn, nextPath, setGuestChoice, signUp, useAccount } from "@/lib/account";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       if (mode === "signup") await signUp(name, email, password);
       else await logIn(email, password);
-      router.push("/");
+      router.replace(nextPath());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
     } finally {
@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   if (acct.status === "user" && !busy) {
     return (
-      <div className="card mx-auto mt-10 max-w-md p-8 text-center">
+      <div className="card p-8 text-center">
         <p className="text-lg font-semibold">You&apos;re logged in as {acct.user?.name}</p>
         <p className="mt-1 text-sm text-muted">{acct.user?.email}</p>
         <Link href="/" className="btn-primary mt-6">
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   const signup = mode === "signup";
   return (
-    <div className="mx-auto mt-4 max-w-md md:mt-10">
+    <div>
       <div className="card p-6 md:p-8">
         <p className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">LearnCivilWithMe account</p>
         <h1 className="text-2xl font-bold">{signup ? "Create your free account" : "Welcome back"}</h1>
@@ -104,7 +104,13 @@ export default function LoginPage() {
                 {showPw ? "Hide" : "Show"}
               </button>
             </div>
-            {signup && <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>}
+            {signup ? (
+              <span className="mt-1 block text-xs text-muted">At least 8 characters.</span>
+            ) : (
+              <Link href="/forgot-password" className="mt-1.5 inline-block text-xs text-accent hover:underline">
+                Forgot password?
+              </Link>
+            )}
           </label>
 
           {error && (
@@ -125,9 +131,19 @@ export default function LoginPage() {
           </button>
         </p>
       </div>
-      <p className="mt-4 text-center text-xs text-muted">
-        Accounts are optional. Everything works without one; progress just stays on this device.
-      </p>
+      <div className="mt-5 text-center">
+        <button
+          type="button"
+          onClick={() => {
+            setGuestChoice(true);
+            router.replace(nextPath());
+          }}
+          className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
+        >
+          Continue without an account →
+        </button>
+        <p className="mt-1 text-xs text-muted">Everything still works; your progress just stays on this device.</p>
+      </div>
     </div>
   );
 }
