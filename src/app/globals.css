@@ -53,3 +53,18 @@ body {
 ::selection {
   background: rgba(245, 165, 36, 0.35);
 }
+
+/* print only the certificate when it's on the page */
+@media print {
+  body:has(#certificate) * {
+    visibility: hidden;
+  }
+  #certificate,
+  #certificate * {
+    visibility: visible;
+  }
+  #certificate {
+    position: absolute;
+    inset: 0 0 auto 0;
+  }
+}

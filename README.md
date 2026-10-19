@@ -20,6 +20,7 @@ Open http://localhost:3300
 | Dashboard | Overall progress, next tasks, weekly hours, streak, quiz accuracy |
 | Roadmap | 9 phases, 36 modules, 94 checkable tasks, key concepts + free resources per module |
 | Practice (FE) | 145 FE-style questions in 12 topics with worked solutions, per-topic accuracy, review missed, FE-pace timer |
+| Phase Tests | End-of-phase test for each of the 9 phases (unlocks when the phase's tasks are done, pass 70%), plus a 40-question Final Exam (unlocks after all phase tests, pass 75%) with a printable completion certificate |
 | Calculators | Beam (V/M/deflection diagrams), section properties, Manning, concrete estimator, engineering economics, unit converter |
 | Study Log | Log sessions, weekly goal, 16-week heatmap, hours by subject |
 | License Path | Honest US licensure routes and pre-license jobs |
@@ -42,7 +43,7 @@ Logged-in users: the same data also syncs to Neon Postgres via `/api/progress` (
 ## Editing content
 
 - Roadmap: `src/lib/roadmap.ts` (keep task `id`s stable, since progress is stored against them)
-- Questions: `src/lib/questions.ts`
+- Questions: `src/lib/questions.ts` (FE bank) and `src/lib/tests.ts` (test definitions + test-only questions for non-FE phases)
 
 ## Deploy
 

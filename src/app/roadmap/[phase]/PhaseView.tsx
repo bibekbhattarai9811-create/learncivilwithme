@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { PHASES, getPhase } from "@/lib/roadmap";
 import { update, useAppState, useHydrated } from "@/lib/store";
-import { phasePct } from "@/lib/stats";
+import { phasePct, testStatus } from "@/lib/stats";
+import { getTest } from "@/lib/tests";
 import { PageHeader, ProgressBar, ResourceLink, TaskRow } from "@/components/ui";
 
 export default function PhaseView({ id }: { id: string }) {
   const p = getPhase(id)!;
-  const { done } = useAppState();
+  const state = useAppState();
+  const { done } = state;
   const hydrated = useHydrated();
   const idx = PHASES.findIndex((x) => x.id === id);
   const prev = PHASES[idx - 1];
@@ -34,6 +36,8 @@ export default function PhaseView({ id }: { id: string }) {
           <ModuleCard key={m.id} moduleIndex={i} phaseId={p.id} done={done} />
         ))}
       </div>
+
+      <PhaseTestCard phaseId={p.id} phaseNum={p.num} status={hydrated ? testStatus(p.id, state) : null} />
 
       <div className="mt-10 flex justify-between gap-4">
         {prev ? (
@@ -123,6 +127,43 @@ function ModuleCard({ phaseId, moduleIndex, done }: { phaseId: string; moduleInd
           ))}
         </div>
       </div>
+    </section>
+  );
+}
+
+function PhaseTestCard({ phaseId, phaseNum, status }: { phaseId: string; phaseNum: number; status: ReturnType<typeof testStatus> | null }) {
+  const t = getTest(phaseId)!;
+  const tone = status?.passed ? "border-emerald-400/50" : status?.unlocked ? "border-accent/60" : "";
+  return (
+    <section className={`card mt-8 flex flex-wrap items-center gap-4 p-5 ${tone}`}>
+      <span
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl ${
+          status?.passed ? "bg-emerald-500/20 text-emerald-300" : status?.unlocked ? "bg-accent/20 text-accent" : "bg-line/60 text-muted"
+        }`}
+      >
+        {status?.passed ? "✓" : status?.unlocked ? "✎" : "🔒"}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-mono text-xs uppercase tracking-wide text-accent">End of Phase {phaseNum}</p>
+        <h2 className="text-lg font-semibold">Phase test</h2>
+        <p className="text-sm text-muted">
+          {t.count} questions · pass {t.pass}%
+          {status?.passed
+            ? ` · passed with ${status.best}%`
+            : status?.unlocked
+              ? status.best !== null
+                ? ` · best so far ${status.best}%`
+                : " · ready when you are"
+              : status
+                ? ` · ${status.reason}`
+                : ""}
+        </p>
+      </div>
+      {status?.unlocked && (
+        <Link href={`/tests/${phaseId}`} className={status.passed ? "btn-ghost" : "btn-primary"}>
+          {status.passed ? "Retake" : status.attempts ? "Try again" : "Take the test"} →
+        </Link>
+      )}
     </section>
   );
 }

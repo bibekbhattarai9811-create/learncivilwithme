@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { PHASES, phaseTasks } from "@/lib/roadmap";
 import { useAppState, useHydrated } from "@/lib/store";
-import { phasePct } from "@/lib/stats";
+import { phasePct, testStatus } from "@/lib/stats";
 import { PageHeader, ProgressBar } from "@/components/ui";
 
 export default function RoadmapPage() {
-  const { done } = useAppState();
+  const state = useAppState();
+  const { done } = state;
   const hydrated = useHydrated();
 
   return (
@@ -51,8 +52,11 @@ export default function RoadmapPage() {
                     </span>
                   ))}
                 </div>
-                <div className="mt-4">
-                  <ProgressBar value={pp} />
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex-1">
+                    <ProgressBar value={pp} />
+                  </div>
+                  {hydrated && <TestTag status={testStatus(p.id, state)} />}
                 </div>
               </Link>
             </li>
@@ -61,4 +65,10 @@ export default function RoadmapPage() {
       </ol>
     </div>
   );
+}
+
+function TestTag({ status }: { status: ReturnType<typeof testStatus> }) {
+  if (status.passed) return <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">TEST PASSED ✓</span>;
+  if (status.unlocked) return <span className="rounded bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">TEST READY</span>;
+  return <span className="rounded bg-line/60 px-2 py-0.5 text-[11px] text-muted">🔒 test</span>;
 }

@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/", label: "Dashboard", icon: "◧" },
   { href: "/roadmap", label: "Roadmap", icon: "⟶" },
   { href: "/practice", label: "Practice (FE)", icon: "✎" },
+  { href: "/tests", label: "Phase Tests", icon: "✓" },
   { href: "/tools", label: "Calculators", icon: "∑" },
   { href: "/log", label: "Study Log", icon: "◷" },
   { href: "/license", label: "License Path", icon: "⚑" },

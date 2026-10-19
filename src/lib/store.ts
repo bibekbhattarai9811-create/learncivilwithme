@@ -16,16 +16,21 @@ export type LogEntry = {
 
 export type QuizStats = Record<string, { seen: number; correct: number }>;
 
+/** best result per test id (phase id or "final"); scores are percents */
+export type TestResult = { best: number; last: number; passed: boolean; attempts: number; lastAt: string };
+export type TestResults = Record<string, TestResult>;
+
 export type AppState = {
   done: string[]; // completed roadmap task ids
   log: LogEntry[];
   weeklyGoal: number; // hours
   quiz: QuizStats; // keyed by quiz category
   missed: string[]; // question ids answered wrong most recently
+  tests: TestResults;
 };
 
 const KEY = "civilpath:v1";
-const EMPTY: AppState = { done: [], log: [], weeklyGoal: 15, quiz: {}, missed: [] };
+const EMPTY: AppState = { done: [], log: [], weeklyGoal: 15, quiz: {}, missed: [], tests: {} };
 
 let state: AppState = EMPTY;
 let loaded = false;
@@ -85,12 +90,25 @@ export function mergeStates(a: AppState, b: AppState): AppState {
     if (!quiz[cat] || st.seen > quiz[cat].seen) quiz[cat] = st;
   }
   const log = new Map([...(a.log ?? []), ...(b.log ?? [])].map((e) => [e.id, e]));
+  const tests: TestResults = { ...(a.tests ?? {}) };
+  for (const [id, r] of Object.entries(b.tests ?? {})) {
+    const x = tests[id];
+    tests[id] = !x
+      ? r
+      : {
+          best: Math.max(x.best, r.best),
+          passed: x.passed || r.passed,
+          attempts: Math.max(x.attempts, r.attempts),
+          ...(x.lastAt > r.lastAt ? { last: x.last, lastAt: x.lastAt } : { last: r.last, lastAt: r.lastAt }),
+        };
+  }
   return {
     done: [...new Set([...(a.done ?? []), ...(b.done ?? [])])],
     log: [...log.values()],
     weeklyGoal: b.weeklyGoal ?? a.weeklyGoal,
     quiz,
     missed: [...new Set([...(a.missed ?? []), ...(b.missed ?? [])])],
+    tests,
   };
 }
 
@@ -159,4 +177,23 @@ export function todayISO(d = new Date()) {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+export function recordTest(id: string, pct: number, passMark: number) {
+  update((s) => {
+    const prev = s.tests?.[id];
+    return {
+      ...s,
+      tests: {
+        ...s.tests,
+        [id]: {
+          best: Math.max(prev?.best ?? 0, pct),
+          last: pct,
+          passed: (prev?.passed ?? false) || pct >= passMark,
+          attempts: (prev?.attempts ?? 0) + 1,
+          lastAt: new Date().toISOString(),
+        },
+      },
+    };
+  });
 }
